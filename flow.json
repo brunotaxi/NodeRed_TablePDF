@@ -1,1 +1,209 @@
-[]
+[
+    {
+        "id": "d333bd337903219c",
+        "type": "tab",
+        "label": "TablePDF",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1f5e992f057f037a",
+        "type": "group",
+        "z": "d333bd337903219c",
+        "name": "Create PDF",
+        "style": {
+            "fill": "#e3f3d3",
+            "label": true
+        },
+        "nodes": [
+            "9915e804f3703152",
+            "63f064189220e589",
+            "d3fa23f589909b3c",
+            "b1f2023dfd843ae9",
+            "699d96d0bee8fe65",
+            "732bd5de9514d782",
+            "820ae7cb5b7b8f25",
+            "c84f31ac129796a7",
+            "891c8eb2f1e74a0d"
+        ],
+        "x": 14,
+        "y": 19,
+        "w": 992,
+        "h": 242
+    },
+    {
+        "id": "55793a3d75c3dd0d",
+        "type": "MySQLdatabase",
+        "name": "DB",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "db": "ajvinhos",
+        "tz": "00:00",
+        "charset": "UTF8"
+    },
+    {
+        "id": "9915e804f3703152",
+        "type": "pdfmake",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "",
+        "outputType": "Buffer",
+        "inputProperty": "payload",
+        "options": "{}",
+        "outputProperty": "payload",
+        "x": 700,
+        "y": 220,
+        "wires": [
+            [
+                "699d96d0bee8fe65",
+                "732bd5de9514d782"
+            ]
+        ]
+    },
+    {
+        "id": "63f064189220e589",
+        "type": "function",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "PDF",
+        "func": "var externalDataRetrievedFromServer = msg.payload;\n\nfunction buildTableBody(data, columns) {\n    var body = [];\n\n    body.push(columns);\n\n    data.forEach(function (row) {\n        var dataRow = [];\n\n        columns.forEach(function (column) {\n            dataRow.push(row[column]);\n        })\n\n        body.push(dataRow);\n    });\n\n    return body;\n}\n\nfunction table(data, columns) {\n    return {\n        table: {\n            headerRows: 1,\n            widths: [50, 250],\n            body: buildTableBody(data, columns)\n        },\n        layout: {\n            fillColor: function (rowIndex, node, columnIndex) {\n                var color;\n                if (rowIndex === 0 ){\n                    color = '#fcf75e'\n                } else if (rowIndex % 2 === 0) {\n                    color = '#CCCCCC'\n                } else\n                {\n                    color =  null;\n                } \n                return color;\n            }\n        }\n\n    }\n}\n\n\nmsg.payload =\n{\n    // a string or { width: number, height: number }\n    pageSize: 'A4',\n\n    // by default we use portrait, you can change it to landscape if you wish\n    pageOrientation: 'landscape',\n\n    // [left, top, right, bottom] or [horizontal, vertical] or just a number for equal margins\n    pageMargins: [10, 10, 10, 40],\n\n    footer: { text: 'DOCUMENTO PROCESSADO AUTOMATICAMENTE', style: 'small'},\n    \n    \"content\":\n        [\n            \n            table(externalDataRetrievedFromServer, ['idpesagens', 'produto'])\n\n        ],\n    styles: {\n        big: {\n            fontSize: 12,\n            bold: true\n        },\n        medium: {\n            fontSize: 9,\n            bold: false\n        },\n        medium2: {\n            fontSize: 9,\n            bold: true,\n            margin: [33, 0, 0, 0]\n        },\n        quote: {\n            italics: true\n        },\n        small: {\n            fontSize: 8\n        },\n        small2: {\n            fontSize: 10\n        }\n    }\n\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 220,
+        "wires": [
+            [
+                "9915e804f3703152",
+                "820ae7cb5b7b8f25"
+            ]
+        ]
+    },
+    {
+        "id": "d3fa23f589909b3c",
+        "type": "inject",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "SELECT",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "SELECT * FROM pesagens;",
+        "x": 160,
+        "y": 220,
+        "wires": [
+            [
+                "b1f2023dfd843ae9"
+            ]
+        ]
+    },
+    {
+        "id": "b1f2023dfd843ae9",
+        "type": "mysql",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "mydb": "55793a3d75c3dd0d",
+        "name": "",
+        "x": 330,
+        "y": 220,
+        "wires": [
+            [
+                "c84f31ac129796a7",
+                "63f064189220e589"
+            ]
+        ]
+    },
+    {
+        "id": "699d96d0bee8fe65",
+        "type": "debug",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "Debug 3",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "732bd5de9514d782",
+        "type": "file",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "",
+        "filename": "c:\\teste\\teste.pdf",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 900,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "820ae7cb5b7b8f25",
+        "type": "debug",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "Debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "c84f31ac129796a7",
+        "type": "debug",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "Debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "891c8eb2f1e74a0d",
+        "type": "comment",
+        "z": "d333bd337903219c",
+        "g": "1f5e992f057f037a",
+        "name": "Recebe dados MySQL e transforma num PDF",
+        "info": "",
+        "x": 210,
+        "y": 60,
+        "wires": []
+    }
+]
